@@ -1,0 +1,144 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  padding: 40rpx $page-padding 48rpx;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(37, 99, 235, 0.2) 0 56rpx, transparent 58rpx),
+    radial-gradient(circle at 88% 22%, rgba(255, 158, 203, 0.32) 0 72rpx, transparent 74rpx),
+    repeating-linear-gradient(-12deg, rgba(33, 19, 15, 0.035) 0 2rpx, transparent 2rpx 30rpx),
+    linear-gradient(180deg, #fff1a8 0%, $color-bg-page 46%, #fffdf7 100%);
+}
+
+.header {
+  margin-bottom: $spacing-lg;
+  padding: $spacing-lg;
+  border: 6rpx solid $color-border;
+  border-radius: $radius-comic;
+  background:
+    radial-gradient(circle at 90% 14%, rgba(255, 216, 77, 0.36) 0 52rpx, transparent 54rpx),
+    linear-gradient(135deg, #ffffff 0%, $color-bg-mint 100%);
+  box-shadow: $shadow-comic;
+}
+
+.kicker {
+  display: inline-flex;
+  padding: 8rpx 18rpx;
+  border: 4rpx solid $color-border;
+  border-radius: $radius-round;
+  background: #ffffff;
+  color: $color-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-xs;
+  box-shadow: 4rpx 4rpx 0 rgba(33, 19, 15, 0.18);
+}
+
+.title {
+  display: block;
+  color: $color-text-primary;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  margin-bottom: $spacing-sm;
+}
+
+.modelList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.modelCard {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: $spacing-lg;
+  border-radius: $radius-comic;
+  background:
+    radial-gradient(circle at 94% 12%, rgba(255, 216, 77, 0.24) 0 30rpx, transparent 32rpx),
+    linear-gradient(135deg, #ffffff 0%, #fff8df 100%);
+  border: 5rpx solid $color-border;
+  box-shadow: $shadow-comic-soft;
+}
+
+.modelCard::after {
+  content: '';
+  position: absolute;
+  right: -32rpx;
+  top: -32rpx;
+  width: 112rpx;
+  height: 112rpx;
+  border: 5rpx solid rgba(33, 19, 15, 0.1);
+  border-radius: $radius-round;
+  background: rgba(255, 158, 203, 0.18);
+}
+
+.modelHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-round;
+  border: 5rpx solid $color-border;
+  @include flex-center;
+  flex: 0 0 80rpx;
+  box-shadow:
+    0 0 0 6rpx rgba(255, 255, 255, 0.88),
+    4rpx 4rpx 0 rgba(33, 19, 15, 0.2);
+}
+
+.avatarText {
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+}
+
+.modelMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.modelName {
+  display: block;
+  color: $color-text-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  @include text-ellipsis;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+}
+
+.detailItem {
+  min-width: 0;
+  padding: $spacing-md;
+  border-radius: 20rpx;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255, 255, 255, 0.78) 0 18rpx, transparent 20rpx),
+    $color-bg-page;
+  border: 4rpx solid $color-border;
+}
+
+.detailLabel {
+  display: block;
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+  margin-bottom: $spacing-xs;
+}
+
+.detailText {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  @include text-ellipsis-multi(2);
+}

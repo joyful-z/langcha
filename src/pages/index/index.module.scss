@@ -1,0 +1,548 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  padding: 0 $page-padding 160rpx;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(255, 216, 77, 0.55) 0 54rpx, transparent 56rpx),
+    radial-gradient(circle at 88% 16%, rgba(255, 158, 203, 0.34) 0 66rpx, transparent 68rpx),
+    repeating-linear-gradient(-12deg, rgba(33, 19, 15, 0.035) 0 2rpx, transparent 2rpx 28rpx),
+    linear-gradient(180deg, #fff3ad 0%, #fff4d8 46%, #fffdf7 100%);
+  overflow: hidden;
+}
+
+.page::before {
+  content: '';
+  position: fixed;
+  left: -120rpx;
+  top: 160rpx;
+  width: 260rpx;
+  height: 260rpx;
+  border: 8rpx solid rgba(33, 19, 15, 0.12);
+  border-radius: $radius-round;
+  background: rgba(66, 217, 200, 0.2);
+}
+
+.page::after {
+  content: '';
+  position: fixed;
+  right: -90rpx;
+  bottom: 220rpx;
+  width: 220rpx;
+  height: 220rpx;
+  border: 8rpx solid rgba(33, 19, 15, 0.12);
+  transform: rotate(14deg);
+  background: rgba(37, 99, 235, 0.14);
+}
+
+.hero,
+.section {
+  position: relative;
+  z-index: 1;
+}
+
+.hero {
+  padding: 32rpx 0 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.comicStage {
+  position: relative;
+  width: 100%;
+  height: 260rpx;
+  border: 6rpx solid $color-border;
+  border-radius: $radius-comic;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.9) 0 34rpx, transparent 36rpx),
+    linear-gradient(180deg, #51204d 0%, #321434 45%, #1e1026 100%);
+  box-shadow: $shadow-comic;
+  overflow: hidden;
+}
+
+.comicStage::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 76rpx;
+  background:
+    linear-gradient(90deg, rgba(255, 216, 77, 0.24) 0 1rpx, transparent 1rpx 54rpx),
+    linear-gradient(180deg, #9b5b26 0%, #653114 100%);
+  border-top: 5rpx solid $color-border;
+}
+
+.spotlight {
+  position: absolute;
+  left: 214rpx;
+  top: -24rpx;
+  width: 260rpx;
+  height: 270rpx;
+  background: linear-gradient(180deg, rgba(255, 239, 161, 0.42) 0%, rgba(255, 239, 161, 0) 86%);
+  clip-path: polygon(36% 0, 64% 0, 100% 100%, 0 100%);
+}
+
+.tableOval {
+  position: absolute;
+  left: 140rpx;
+  right: 140rpx;
+  bottom: 36rpx;
+  height: 84rpx;
+  border: 5rpx solid $color-border;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffd84d 0%, #e58b35 100%);
+  box-shadow: 0 12rpx 0 rgba(33, 19, 15, 0.32);
+}
+
+.wolfMask {
+  position: absolute;
+  left: 50%;
+  bottom: 42rpx;
+  width: 108rpx;
+  height: 78rpx;
+  margin-left: -54rpx;
+  border: 5rpx solid $color-border;
+  border-radius: 52rpx 52rpx 34rpx 34rpx;
+  background: linear-gradient(180deg, #7b2a60 0%, #44204c 100%);
+}
+
+.maskEarLeft,
+.maskEarRight {
+  position: absolute;
+  top: -34rpx;
+  width: 44rpx;
+  height: 48rpx;
+  border: 5rpx solid $color-border;
+  background: #7b2a60;
+}
+
+.maskEarLeft {
+  left: 2rpx;
+  transform: rotate(-24deg);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.maskEarRight {
+  right: 2rpx;
+  transform: rotate(24deg);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.maskEyeLeft,
+.maskEyeRight {
+  position: absolute;
+  top: 28rpx;
+  width: 20rpx;
+  height: 14rpx;
+  border-radius: $radius-round;
+  background: #fffdf7;
+}
+
+.maskEyeLeft {
+  left: 24rpx;
+}
+
+.maskEyeRight {
+  right: 24rpx;
+}
+
+.maskNose {
+  position: absolute;
+  left: 46rpx;
+  top: 48rpx;
+  width: 16rpx;
+  height: 12rpx;
+  border-radius: $radius-round;
+  background: $color-ink;
+}
+
+.miniRoleA,
+.miniRoleB,
+.miniRoleC {
+  position: absolute;
+  bottom: 54rpx;
+  width: 58rpx;
+  height: 72rpx;
+  border: 4rpx solid $color-border;
+  border-radius: 24rpx 24rpx 16rpx 16rpx;
+  box-shadow: $shadow-comic-soft;
+  @include flex-center;
+}
+
+.miniRoleA {
+  left: 76rpx;
+  background: $color-gold;
+  transform: rotate(-8deg);
+}
+
+.miniRoleB {
+  right: 84rpx;
+  background: $color-primary;
+  transform: rotate(7deg);
+}
+
+.miniRoleC {
+  right: 166rpx;
+  background: $color-bg-lilac;
+  transform: rotate(-3deg);
+}
+
+.miniRoleText {
+  color: $color-text-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+}
+
+.heroText {
+  padding: 20rpx 4rpx 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.brandSeal {
+  width: 58rpx;
+  height: 58rpx;
+  border: 4rpx solid $color-border;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-wolf 100%);
+  box-shadow: 4rpx 4rpx 0 rgba(33, 19, 15, 0.82);
+  transform: rotate(-5deg);
+  @include flex-center;
+}
+
+.brandSealText {
+  color: $color-text-white;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  line-height: 1;
+}
+
+.brandName {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+}
+
+.title {
+  margin-top: $spacing-xs;
+  color: $color-text-primary;
+  font-size: 44rpx;
+  font-weight: $font-weight-bold;
+  line-height: 1.22;
+  text-shadow:
+    3rpx 3rpx 0 #ffffff,
+    5rpx 5rpx 0 rgba(250, 204, 21, 0.72);
+}
+
+.subtitle {
+  margin-top: $spacing-sm;
+  color: $color-text-secondary;
+  font-size: $font-size-md;
+  line-height: 1.65;
+}
+
+.section {
+  margin-top: $spacing-xl;
+}
+
+.sectionHeader {
+  padding: 0 4rpx;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.sectionTitle {
+  color: $color-text-primary;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  text-shadow: 3rpx 3rpx 0 rgba(255, 255, 255, 0.9);
+}
+
+.modeCard,
+.roleCard {
+  position: relative;
+  width: 100%;
+  padding: $spacing-lg;
+  border: 5rpx solid $color-border;
+  border-radius: $radius-comic;
+  background:
+    radial-gradient(circle at 94% 12%, rgba(255, 255, 255, 0.9) 0 24rpx, transparent 26rpx),
+    linear-gradient(135deg, #ffffff 0%, #fff1c7 100%);
+  box-shadow: $shadow-comic;
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-md;
+  transition: all $transition-spring;
+
+  &:active {
+    opacity: 0.92;
+    transform: translate(2rpx, 2rpx);
+    box-shadow: 3rpx 3rpx 0 rgba(33, 19, 15, 0.82);
+  }
+}
+
+.modeCard {
+  min-height: 138rpx;
+  align-items: center;
+}
+
+.modeCardActive,
+.roleCardActive {
+  background:
+    radial-gradient(circle at 94% 12%, rgba(255, 255, 255, 0.88) 0 24rpx, transparent 26rpx),
+    linear-gradient(135deg, $color-bg-mint 0%, $color-gold 100%);
+  border-color: $color-accent;
+  transform: translate(-2rpx, -2rpx);
+}
+
+.modeIcon {
+  width: 76rpx;
+  height: 76rpx;
+  border: 4rpx solid $color-border;
+  border-radius: 26rpx;
+  background: $color-primary;
+  box-shadow: 4rpx 4rpx 0 rgba(31, 19, 15, 0.22);
+  transform: rotate(-5deg);
+  @include flex-center;
+  flex: 0 0 76rpx;
+}
+
+.modeIconWatch {
+  background: $color-accent;
+  transform: rotate(4deg);
+}
+
+.modeIconText {
+  color: $color-text-white;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  white-space: nowrap;
+}
+
+.modeBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.modeTitle {
+  display: block;
+  color: $color-text-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-xs;
+}
+
+.modeDesc {
+  display: block;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  line-height: 1.55;
+  white-space: normal;
+  word-break: break-all;
+}
+
+.modeList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.radio {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: $radius-round;
+  border: 4rpx solid $color-text-primary;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 4rpx rgba(255, 239, 117, 0.78);
+  @include flex-center;
+  flex: 0 0 40rpx;
+}
+
+.radioDot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: $radius-round;
+  background: $color-primary;
+}
+
+.roleGrid {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.roleCard {
+  min-height: 0;
+  padding: 22rpx;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12rpx;
+  overflow: hidden;
+}
+
+.roleCard:nth-child(1) {
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255, 255, 255, 0.9) 0 24rpx, transparent 26rpx),
+    linear-gradient(135deg, #ffffff 0%, $color-bg-mint 100%);
+}
+
+.roleCard:nth-child(2) {
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255, 255, 255, 0.84) 0 24rpx, transparent 26rpx),
+    linear-gradient(135deg, #ffffff 0%, $color-bg-rose 100%);
+}
+
+.roleCard:nth-child(3) {
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255, 255, 255, 0.9) 0 24rpx, transparent 26rpx),
+    linear-gradient(135deg, #ffffff 0%, #fff0bb 100%);
+}
+
+.roleCard:nth-child(4) {
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255, 255, 255, 0.86) 0 24rpx, transparent 26rpx),
+    linear-gradient(135deg, #ffffff 0%, $color-bg-lilac 100%);
+}
+
+.roleCard:nth-child(5) {
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255, 255, 255, 0.86) 0 24rpx, transparent 26rpx),
+    linear-gradient(135deg, #ffffff 0%, #ffe2c8 100%);
+}
+
+.roleCardActive {
+  box-shadow:
+    8rpx 8rpx 0 rgba(31, 19, 15, 0.82),
+    0 0 0 6rpx rgba(14, 165, 233, 0.18);
+}
+
+.roleTop {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  width: 100%;
+  flex: 0 0 auto;
+  margin-bottom: 0;
+}
+
+.roleBadge {
+  width: 68rpx;
+  height: 68rpx;
+  border: 3rpx solid $color-border;
+  border-radius: $radius-round;
+  border-width: 4rpx;
+  box-shadow: 3rpx 3rpx 0 rgba(31, 19, 15, 0.2);
+  @include flex-center;
+  flex: 0 0 68rpx;
+}
+
+.roleBadgeText {
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+}
+
+.roleTitle {
+  flex: 1;
+  min-width: 0;
+  color: $color-text-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  @include text-ellipsis;
+}
+
+.roleText,
+.roleGoal {
+  display: block;
+  color: $color-text-secondary;
+  font-size: 23rpx;
+  line-height: 1.5;
+}
+
+.roleLine {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+  padding: 12rpx;
+  border-radius: $radius-lg;
+  background: rgba(255, 255, 255, 0.58);
+  box-sizing: border-box;
+}
+
+.roleLineLabel {
+  flex: 0 0 56rpx;
+  height: 34rpx;
+  border: 3rpx solid rgba(33, 19, 15, 0.72);
+  border-radius: $radius-round;
+  background: #fffdf7;
+  color: $color-text-primary;
+  font-size: 19rpx;
+  font-weight: $font-weight-bold;
+  line-height: 32rpx;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.roleText,
+.roleGoal {
+  flex: 1;
+  min-width: 0;
+  white-space: normal;
+  word-break: break-all;
+  overflow: visible;
+}
+
+.roleGoal {
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.ctaBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding calc($spacing-md + env(safe-area-inset-bottom));
+  border-top: 4rpx solid $color-border;
+  z-index: 5;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 244, 216, 0.98) 28%, rgba(255, 216, 77, 0.98) 100%);
+}
+
+.primaryButton {
+  width: 100%;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  border: 4rpx solid $color-border;
+  border-width: 5rpx;
+  background:
+    linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  box-shadow: $shadow-comic;
+  @include flex-center;
+  transition: all $transition-spring;
+
+  &:active {
+    transform: translate(2rpx, 2rpx);
+    box-shadow: 4rpx 4rpx 0 $color-text-primary;
+  }
+}
+
+.primaryButtonText {
+  color: $color-text-white;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  white-space: nowrap;
+}
