@@ -1,4 +1,4 @@
-import type { KimiChatRequest, KimiChatResponse } from '@/types/game';
+import type { AiChatRequest, AiChatResponse } from '@/types/game';
 
 const dayOne = [
   '这轮先别急着站死，第一天硬信息少，但不代表可以空过。谁跳预言家，就把为什么验、为什么今天要推这个人讲明白；只喊“像狼”不拆原话，我肯定不跟。现在我先看3号文心的发言质量。',
@@ -16,7 +16,7 @@ const dayTwo = [
   '今天最好别散票。狼最想看到好人各怀疑各的，最后两票一冲带走一个好人。查验信息我会听，但查验不是免死金牌，发言也要过关。我的临时归票压昨天解释最模糊的位置。',
 ];
 
-export default function kimiChat(data?: KimiChatRequest): KimiChatResponse {
+export default function localAiFallback(data?: AiChatRequest): AiChatResponse {
   const targetSet = data?.targetPlayerIds?.length ? new Set(data.targetPlayerIds) : undefined;
   const players = data?.players.filter((player) => !player.isUser && player.isAlive && (!targetSet || targetSet.has(player.id))) || [];
   const lines = data?.day === 1 ? dayOne : dayTwo;
@@ -24,7 +24,7 @@ export default function kimiChat(data?: KimiChatRequest): KimiChatResponse {
 
   return {
     source: 'mock',
-    model: 'kimi-mock',
+    model: 'local-fallback',
     speeches: players.map((player, index) => {
       const line = lines.find((item, lineIndex) => lineIndex >= index && !item.includes(player.name)) ||
         lines.find((item) => !item.includes(player.name)) ||

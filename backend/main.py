@@ -13,8 +13,8 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, validator
 
 LOGGER = logging.getLogger(__name__)
-DEFAULT_KIMI_API_URL = "https://api.moonshot.cn/v1/chat/completions"
-DEFAULT_KIMI_MODEL = "moonshot-v1-32k"
+DEFAULT_QWEN_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+DEFAULT_QWEN_MODEL = "qwen-plus"
 MAX_REQUEST_BYTES = 256 * 1024
 RATE_LIMIT_REQUESTS = 30
 RATE_LIMIT_WINDOW_SECONDS = 60 * 60
@@ -62,7 +62,7 @@ class NightRecord(BaseModel):
     announcement: str = Field("", max_length=500)
 
 
-class KimiChatRequest(BaseModel):
+class AiChatRequest(BaseModel):
     day: int = Field(..., ge=1, le=100)
     mode: str
     phase: str
@@ -94,17 +94,17 @@ class KimiChatRequest(BaseModel):
 class SpeechResult(BaseModel):
     playerId: str
     content: str
-    source: str = "kimi"
+    source: str = "qwen"
 
 
-class KimiChatResponse(BaseModel):
+class AiChatResponse(BaseModel):
     speeches: List[SpeechResult]
-    source: str = "kimi"
+    source: str = "qwen"
     model: str
 
 
 def get_api_key() -> str:
-    return os.environ.get("KIMI_API_KEY") or os.environ.get("MOONSHOT_API_KEY") or ""
+    return os.environ.get("DASHSCOPE_API_KEY") or os.environ.get("QWEN_API_KEY") or ""
 
 
 def get_allowed_origins() -> List[str]:
@@ -131,7 +131,7 @@ def enforce_rate_limit(request: Request) -> None:
     history.append(now)
 
 
-def build_prompt(payload: KimiChatRequest) -> str:
+def build_prompt(payload: AiChatRequest) -> str:
     target_ids = set(payload.targetPlayerIds)
     targets = [player for player in payload.players if player.id in target_ids and player.isAlive and not player.isUser]
     if not targets:
@@ -222,13 +222,13 @@ def parse_model_response(content: str, target_ids: List[str]) -> List[SpeechResu
     return speeches
 
 
-async def request_kimi(payload: KimiChatRequest) -> KimiChatResponse:
+async def request_qwen(payload: AiChatRequest) -> AiChatResponse:
     api_key = get_api_key()
     if not api_key:
-        raise HTTPException(status_code=503, detail="服务端尚未配置 KIMI_API_KEY")
+        raise HTTPException(status_code=503, detail="服务端尚未配置 DASHSCOPE_API_KEY")
 
-    model = os.environ.get("KIMI_MODEL", DEFAULT_KIMI_MODEL)
-    timeout_seconds = float(os.environ.get("KIMI_TIMEOUT_SECONDS", "30"))
+    model = os.environ.get("QWEN_MODEL", DEFAULT_QWEN_MODEL)
+    timeout_seconds = float(os.environ.get("QWEN_TIMEOUT_SECONDS", "30"))
     request_body = {
         "model": model,
         "temperature": 0.85,
@@ -241,9 +241,9 @@ async def request_kimi(payload: KimiChatRequest) -> KimiChatResponse:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=timeout_seconds) as client:
+        async with httpx.AsyncClient(timeout=timeout_seconds, trust_env=False) as client:
             response = await client.post(
-                os.environ.get("KIMI_API_URL", DEFAULT_KIMI_API_URL),
+                os.environ.get("QWEN_API_URL", DEFAULT_QWEN_API_URL),
                 headers={"Authorization": "Bearer {0}".format(api_key)},
                 json=request_body,
             )
@@ -251,12 +251,12 @@ async def request_kimi(payload: KimiChatRequest) -> KimiChatResponse:
         response_json = response.json()
         content = response_json["choices"][0]["message"]["content"]
     except httpx.TimeoutException as error:
-        raise HTTPException(status_code=504, detail="Kimi 响应超时") from error
+        raise HTTPException(status_code=504, detail="Qwen 响应超时") from error
     except (httpx.HTTPError, KeyError, ValueError) as error:
-        LOGGER.warning("Kimi request failed: %s", error)
-        raise HTTPException(status_code=502, detail="Kimi 服务暂时不可用") from error
+        LOGGER.warning("Qwen request failed: %s", error)
+        raise HTTPException(status_code=502, detail="Qwen 服务暂时不可用") from error
 
-    return KimiChatResponse(
+    return AiChatResponse(
         speeches=parse_model_response(content, payload.targetPlayerIds),
         model=model,
     )
@@ -284,7 +284,7 @@ async def request_guard(request: Request, call_next):
     content_length = request.headers.get("content-length")
     if content_length and int(content_length) > MAX_REQUEST_BYTES:
         return JSONResponse(status_code=413, content={"detail": "请求体过大"})
-    if request.method == "POST" and request.url.path == "/api/kimi-chat":
+    if request.method == "POST" and request.url.path == "/api/ai-chat":
         try:
             enforce_rate_limit(request)
         except HTTPException as error:
@@ -296,21 +296,21 @@ async def request_guard(request: Request, call_next):
 async def health_handler():
     return {
         "status": "ok",
-        "provider": "moonshot",
-        "model": os.environ.get("KIMI_MODEL", DEFAULT_KIMI_MODEL),
+        "provider": "qwen",
+        "model": os.environ.get("QWEN_MODEL", DEFAULT_QWEN_MODEL),
         "configured": bool(get_api_key()),
     }
 
 
-@app.post("/api/kimi-chat", response_model=KimiChatResponse)
-async def kimi_chat_handler(payload: KimiChatRequest, request: Request):
+@app.post("/api/ai-chat", response_model=AiChatResponse)
+async def ai_chat_handler(payload: AiChatRequest, request: Request):
     LOGGER.info(
         "AI speech request ip=%s day=%s targets=%s",
         get_client_ip(request),
         payload.day,
         len(payload.targetPlayerIds),
     )
-    return await request_kimi(payload)
+    return await request_qwen(payload)
 
 
 # ---------------------------DO NOT EDIT CODE BELOW THIS LINE---------------------------------
