@@ -14,7 +14,7 @@
 
 .page::before {
   content: '';
-  position: fixed;
+  position: absolute;
   left: -120rpx;
   top: 160rpx;
   width: 260rpx;
@@ -26,7 +26,7 @@
 
 .page::after {
   content: '';
-  position: fixed;
+  position: absolute;
   right: -90rpx;
   bottom: 220rpx;
   width: 220rpx;
@@ -514,12 +514,19 @@
   position: fixed;
   left: 0;
   right: 0;
+  width: 100%;
+  max-width: 480PX;
+  margin: 0 auto;
   bottom: 0;
   padding: $spacing-md $page-padding calc($spacing-md + env(safe-area-inset-bottom));
   border-top: 4rpx solid $color-border;
   z-index: 5;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 244, 216, 0.98) 28%, rgba(255, 216, 77, 0.98) 100%);
+}
+
+.webRaised {
+  bottom: 50PX;
 }
 
 .primaryButton {

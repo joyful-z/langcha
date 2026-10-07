@@ -1,6 +1,9 @@
 import { callFunction } from '@/services/cloud';
+import kimiChatMock from '@/data/kimiChat';
 import type { GameState, KimiChatRequest, KimiChatResponse, Speech } from '@/types/game';
 import { getVoteSummary } from '@/utils/gameEngine';
+
+const isWeapp = process.env.TARO_ENV === 'weapp';
 
 const getSeat = (state: GameState, playerId: string) =>
   state.players.findIndex((player) => player.id === playerId) + 1;
@@ -53,8 +56,16 @@ const buildKimiRequest = (state: GameState, targetPlayerIds?: string[]): KimiCha
 
 export const requestAiSpeeches = async (state: GameState, targetPlayerIds?: string[]): Promise<Speech[]> => {
   try {
-    console.info('[AI] request Kimi speeches', { day: state.day, mode: state.mode, targetPlayerIds });
-    const result = await callFunction<KimiChatResponse>('kimiChat', buildKimiRequest(state, targetPlayerIds));
+    const request = buildKimiRequest(state, targetPlayerIds);
+    console.info('[AI] request speeches', {
+      provider: isWeapp ? 'kimi-cloud' : 'local-web-demo',
+      day: state.day,
+      mode: state.mode,
+      targetPlayerIds,
+    });
+    const result = isWeapp
+      ? await callFunction<KimiChatResponse>('kimiChat', request)
+      : kimiChatMock(request);
     const targetPlayers = targetPlayerIds?.length
       ? targetPlayerIds
           .map((playerId) => state.players.find((player) => player.id === playerId))
@@ -67,9 +78,13 @@ export const requestAiSpeeches = async (state: GameState, targetPlayerIds?: stri
 
     return targetPlayers.map((player, index) => {
       const generated = result.speeches.find((item) => item.playerId === player.id);
-      if (!generated?.content || generated.source !== 'kimi') {
-        throw new Error(`Kimi did not return a valid speech for ${player.id}`);
+      if (!generated?.content) {
+        throw new Error(`AI did not return a valid speech for ${player.id}`);
       }
+
+      const source: NonNullable<Speech['source']> = isWeapp
+        ? generated.source === 'cloud_fallback' ? 'cloud_fallback' : 'kimi'
+        : 'local_fallback';
 
       return {
         id: `${state.day}-day-${player.id}-${index}`,
@@ -78,8 +93,8 @@ export const requestAiSpeeches = async (state: GameState, targetPlayerIds?: stri
         playerId: player.id,
         playerName: getSeatName(state, player.id),
         content: generated.content,
-        tone: `Kimi 模拟 · ${player.profile?.temperament || '新手视角'}`,
-        source: 'kimi',
+        tone: `${isWeapp ? 'Kimi 模拟' : '网页演示'} · ${player.profile?.temperament || '新手视角'}`,
+        source,
       };
     });
   } catch (error) {
