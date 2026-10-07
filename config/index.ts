@@ -18,7 +18,9 @@ export default defineConfig<'webpack5'>(async (merge, { command, mode }) => {
     sourceRoot: 'src',
     outputRoot: process.env.TARO_OUTPUT_DIR || 'dist',
     plugins: ['@tarojs/plugin-html'],
-    defineConstants: {},
+    defineConstants: {
+      __WOLFCHA_API_BASE_URL__: JSON.stringify(process.env.WOLFCHA_API_BASE_URL || ''),
+    },
     copy: {
       patterns: [],
       options: {},

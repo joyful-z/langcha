@@ -4,6 +4,35 @@ import type { GameState, KimiChatRequest, KimiChatResponse, Speech } from '@/typ
 import { getVoteSummary } from '@/utils/gameEngine';
 
 const isWeapp = process.env.TARO_ENV === 'weapp';
+const WEB_AI_TIMEOUT_MS = 35000;
+
+const requestWebAi = async (request: KimiChatRequest): Promise<KimiChatResponse> => {
+  const apiBaseUrl = __WOLFCHA_API_BASE_URL__.replace(/\/$/, '');
+  if (!apiBaseUrl) {
+    throw new Error('未配置 WOLFCHA_API_BASE_URL');
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), WEB_AI_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/kimi-chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.detail || `AI 服务返回 ${response.status}`);
+    }
+
+    return await response.json() as KimiChatResponse;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
 
 const getSeat = (state: GameState, playerId: string) =>
   state.players.findIndex((player) => player.id === playerId) + 1;
@@ -63,9 +92,20 @@ export const requestAiSpeeches = async (state: GameState, targetPlayerIds?: stri
       mode: state.mode,
       targetPlayerIds,
     });
-    const result = isWeapp
-      ? await callFunction<KimiChatResponse>('kimiChat', request)
-      : kimiChatMock(request);
+    let result: KimiChatResponse;
+    let usedLocalFallback = false;
+
+    if (isWeapp) {
+      result = await callFunction<KimiChatResponse>('kimiChat', request);
+    } else {
+      try {
+        result = await requestWebAi(request);
+      } catch (error) {
+        usedLocalFallback = true;
+        console.warn('[AI] web service unavailable, use local fallback', error);
+        result = kimiChatMock(request);
+      }
+    }
     const targetPlayers = targetPlayerIds?.length
       ? targetPlayerIds
           .map((playerId) => state.players.find((player) => player.id === playerId))
@@ -84,7 +124,7 @@ export const requestAiSpeeches = async (state: GameState, targetPlayerIds?: stri
 
       const source: NonNullable<Speech['source']> = isWeapp
         ? generated.source === 'cloud_fallback' ? 'cloud_fallback' : 'kimi'
-        : 'local_fallback';
+        : usedLocalFallback ? 'local_fallback' : 'kimi';
 
       return {
         id: `${state.day}-day-${player.id}-${index}`,
@@ -93,7 +133,7 @@ export const requestAiSpeeches = async (state: GameState, targetPlayerIds?: stri
         playerId: player.id,
         playerName: getSeatName(state, player.id),
         content: generated.content,
-        tone: `${isWeapp ? 'Kimi 模拟' : '网页演示'} · ${player.profile?.temperament || '新手视角'}`,
+        tone: `${source === 'kimi' ? 'Kimi 实时生成' : source === 'cloud_fallback' ? '云端兜底' : '网页本地兜底'} · ${player.profile?.temperament || '新手视角'}`,
         source,
       };
     });
