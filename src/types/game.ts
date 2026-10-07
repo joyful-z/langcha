@@ -38,7 +38,7 @@ export interface Speech {
   playerName: string;
   content: string;
   tone: string;
-  source?: 'kimi' | 'cloud_fallback' | 'local_fallback' | 'user';
+  source?: 'qwen' | 'kimi' | 'cloud_fallback' | 'local_fallback' | 'user';
 }
 
 export interface VoteRecord {
@@ -103,7 +103,7 @@ export interface ReviewInsight {
   level: 'good' | 'warning' | 'info';
 }
 
-export interface KimiPlayerContext {
+export interface AiPlayerContext {
   id: string;
   name: string;
   seat: number;
@@ -118,7 +118,7 @@ export interface KimiPlayerContext {
   risk?: string;
 }
 
-export interface KimiChatRequest {
+export interface AiChatRequest {
   day: number;
   mode: GameMode;
   phase: GamePhase;
@@ -128,21 +128,21 @@ export interface KimiChatRequest {
   speakingOrder?: string[];
   spokenPlayerIds?: string[];
   unspokenPlayerIds?: string[];
-  players: KimiPlayerContext[];
+  players: AiPlayerContext[];
   publicSpeeches: Array<Pick<Speech, 'playerId' | 'playerName' | 'content' | 'day'>>;
   publicEvents: string[];
   seerChecks?: SeerCheckRecord[];
   nightRecords?: NightRecord[];
 }
 
-export interface KimiSpeechResult {
+export interface AiSpeechResult {
   playerId: string;
   content: string;
-  source?: 'kimi' | 'cloud_fallback';
+  source?: 'qwen' | 'kimi' | 'cloud_fallback';
 }
 
-export interface KimiChatResponse {
-  speeches: KimiSpeechResult[];
-  source: 'kimi' | 'fallback' | 'mock';
+export interface AiChatResponse {
+  speeches: AiSpeechResult[];
+  source: 'qwen' | 'kimi' | 'fallback' | 'mock';
   model: string;
 }

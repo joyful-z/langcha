@@ -7,7 +7,7 @@ AI 狼人杀陪练，支持微信小程序和网页版。项目面向狼人杀�
 - 9 人局配置：3 平民、3 狼人、1 预言家、1 女巫、1 猎人。
 - 支持身份选择、夜间行动、顺序发言、投票结算、遗言和复盘。
 - AI 玩家按座位顺序依次发言，后置 AI 会基于前置位发言继续推理。
-- 接入 Kimi/Moonshot API 生成 AI 发言，避免纯本地规则导致的模板化体验。
+- 网页版接入阿里云百炼 Qwen API 生成 AI 发言，服务异常时自动切换本地兜底，避免整局中断。
 - 基于真实狼人杀对局语料提炼 prompt 规则，覆盖预言家报验、女巫刀口/银水、狼人悍跳/倒钩、平民表水等场景。
 - 对局中支持给其他玩家添加个人身份标记，方便记录自己的判断。
 
@@ -18,7 +18,7 @@ AI 狼人杀陪练，支持微信小程序和网页版。项目面向狼人杀�
 - 样式方案：SCSS Modules
 - 小程序平台：微信小程序
 - 云端能力：微信云开发 CloudBase 云函数
-- AI 能力：Kimi/Moonshot API
+- AI 能力：网页版使用 Qwen API；微信小程序沿用 Kimi/Moonshot 云函数
 - AI 工程机制：Prompt Engineering、Role-based Agent、Context Injection、Structured JSON Output、Token 控制、批量发言生成
 
 ## 目录结构
@@ -43,9 +43,9 @@ AI 狼人杀陪练，支持微信小程序和网页版。项目面向狼人杀�
 
 ## AI 发言实现
 
-前端在白天发言阶段收集当前局势，包括玩家身份、存活状态、发言顺序、夜晚事件、查验结果、票型和历史发言，然后调用 `kimiChat` 云函数。
+前端在白天发言阶段收集当前局势，包括玩家身份、存活状态、发言顺序、夜晚事件、查验结果、票型和历史发言。网页版调用 `backend/` 的 Qwen 服务端代理，微信小程序调用现有 `kimiChat` 云函数。
 
-云函数会把局势数据组装为结构化 prompt，并要求 Kimi 返回严格 JSON：
+服务端会把局势数据组装为结构化 prompt，并要求模型返回严格 JSON：
 
 ```json
 {
@@ -73,14 +73,14 @@ npm run start:web
 
 终端会显示本地访问地址，默认通常是 `http://localhost:10086/`。浏览器打开后即可体验首页、身份选择、对局、历史复盘和模型介绍。
 
-网页端会优先调用 `backend/` 中的服务端代理生成真实 Kimi 发言；服务不可用时自动使用本地演示发言，保证对局不中断。
+网页端会优先调用 `backend/` 中的服务端代理生成真实 Qwen 发言；服务不可用时自动使用本地演示发言，保证对局不中断。
 
 启动真实 AI 后端：
 
 ```bash
 cd backend
 cp .env.example .env
-# 编辑 .env，只在服务端填写 KIMI_API_KEY
+# 编辑 .env，只在服务端填写 DASHSCOPE_API_KEY
 set -a && source .env && set +a
 ./venv/bin/uvicorn main:app --reload --port 8000
 ```
@@ -92,7 +92,7 @@ cd langcha
 WOLFCHA_API_BASE_URL=http://127.0.0.1:8000 npm run start:web
 ```
 
-不要把 `KIMI_API_KEY` 写进前端环境变量或源码。
+不要把 `DASHSCOPE_API_KEY` 写进前端环境变量或源码。
 
 生产构建：
 
@@ -170,4 +170,4 @@ module.exports = {
 
 ## 当前状态
 
-项目已完成可运行 Demo：微信小程序端通过云函数接入 Kimi，网页版通过 FastAPI 服务端代理接入 Kimi，并在服务异常时自动使用本地演示发言。后续可继续优化多模型角色绑定、长期记忆、复盘评分、发言质量评测和真实玩家数据闭环。
+项目已完成可运行 Demo：微信小程序端通过云函数接入 Kimi，网页版通过 FastAPI 服务端代理接入 Qwen，并在服务异常时自动使用本地演示发言。后续可继续优化多模型角色绑定、长期记忆、复盘评分、发言质量评测和真实玩家数据闭环。
