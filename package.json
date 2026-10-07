@@ -1,8 +1,8 @@
 {
-  "name": "taro_template",
+  "name": "wolfcha",
   "version": "1.0.0",
   "private": true,
-  "description": "taro_template",
+  "description": "WolfCha AI 狼人杀陪练，支持微信小程序与网页端",
   "templateInfo": {
     "name": "react",
     "typescript": true,
@@ -10,6 +10,9 @@
     "framework": "React"
   },
   "scripts": {
+    "start": "npm run dev:h5",
+    "start:web": "npm run dev:h5",
+    "build:web": "npm run build:h5",
     "build:weapp": "taro build --type weapp",
     "build:swan": "taro build --type swan",
     "build:alipay": "taro build --type alipay",

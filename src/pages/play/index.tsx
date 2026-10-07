@@ -971,7 +971,7 @@ const PlayPage: React.FC = () => {
       )}
 
       <View className={styles.bottomSpace} />
-      <View className={styles.bottomBar}>
+      <View className={classnames(styles.bottomBar, process.env.TARO_ENV === 'h5' && styles.webRaised)}>
         {game.phase === 'night' && (
           <View className={styles.primaryButton} onClick={enterDay}>
             <Text className={styles.primaryButtonText}>
