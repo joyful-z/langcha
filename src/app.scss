@@ -2,6 +2,32 @@
 @use '@/styles/variables.scss' as *;
 
 // 全局样式
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f4ead2;
+}
+
+#app {
+  width: 100%;
+  max-width: 480PX;
+  margin: 0 auto;
+  overflow: hidden;
+  box-shadow: 0 0 48px rgba(58, 35, 24, 0.2);
+}
+
+.taro-tabbar__tabbar {
+  left: 50% !important;
+  width: 100% !important;
+  max-width: 480PX;
+  transform: translateX(-50%);
+}
+
 page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB',
     sans-serif;

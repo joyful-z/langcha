@@ -120,7 +120,7 @@ const IndexPage: React.FC = () => {
         </View>
       </View>
 
-      <View className={styles.ctaBar}>
+      <View className={classnames(styles.ctaBar, process.env.TARO_ENV === 'h5' && styles.webRaised)}>
         <View className={styles.primaryButton} onClick={startGame}>
           <Text className={styles.primaryButtonText}>{selectedMode === 'watch' ? '开始 AI 观战' : '开始本局游戏'}</Text>
         </View>

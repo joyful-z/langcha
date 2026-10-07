@@ -1,6 +1,38 @@
 import { callFunction } from '@/services/cloud';
-import type { GameState, KimiChatRequest, KimiChatResponse, Speech } from '@/types/game';
+import localAiFallback from '@/data/kimiChat';
+import type { AiChatRequest, AiChatResponse, GameState, Speech } from '@/types/game';
 import { getVoteSummary } from '@/utils/gameEngine';
+
+const isWeapp = process.env.TARO_ENV === 'weapp';
+const WEB_AI_TIMEOUT_MS = 35000;
+
+const requestWebAi = async (request: AiChatRequest): Promise<AiChatResponse> => {
+  const apiBaseUrl = __WOLFCHA_API_BASE_URL__.replace(/\/$/, '');
+  if (!apiBaseUrl) {
+    throw new Error('未配置 WOLFCHA_API_BASE_URL');
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), WEB_AI_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/ai-chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.detail || `AI 服务返回 ${response.status}`);
+    }
+
+    return await response.json() as AiChatResponse;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
 
 const getSeat = (state: GameState, playerId: string) =>
   state.players.findIndex((player) => player.id === playerId) + 1;
@@ -10,7 +42,7 @@ const getSeatName = (state: GameState, playerId: string) => {
   return `${seat || '?'}号`;
 };
 
-const buildKimiRequest = (state: GameState, targetPlayerIds?: string[]): KimiChatRequest => ({
+const buildAiRequest = (state: GameState, targetPlayerIds?: string[]): AiChatRequest => ({
   day: state.day,
   mode: state.mode,
   phase: state.phase,
@@ -53,8 +85,27 @@ const buildKimiRequest = (state: GameState, targetPlayerIds?: string[]): KimiCha
 
 export const requestAiSpeeches = async (state: GameState, targetPlayerIds?: string[]): Promise<Speech[]> => {
   try {
-    console.info('[AI] request Kimi speeches', { day: state.day, mode: state.mode, targetPlayerIds });
-    const result = await callFunction<KimiChatResponse>('kimiChat', buildKimiRequest(state, targetPlayerIds));
+    const request = buildAiRequest(state, targetPlayerIds);
+    console.info('[AI] request speeches', {
+      provider: isWeapp ? 'kimi-cloud' : 'qwen-web',
+      day: state.day,
+      mode: state.mode,
+      targetPlayerIds,
+    });
+    let result: AiChatResponse;
+    let usedLocalFallback = false;
+
+    if (isWeapp) {
+      result = await callFunction<AiChatResponse>('kimiChat', request);
+    } else {
+      try {
+        result = await requestWebAi(request);
+      } catch (error) {
+        usedLocalFallback = true;
+        console.warn('[AI] web service unavailable, use local fallback', error);
+        result = localAiFallback(request);
+      }
+    }
     const targetPlayers = targetPlayerIds?.length
       ? targetPlayerIds
           .map((playerId) => state.players.find((player) => player.id === playerId))
@@ -62,14 +113,26 @@ export const requestAiSpeeches = async (state: GameState, targetPlayerIds?: stri
       : state.players.filter((player) => !player.isUser && player.isAlive);
 
     if (!result.speeches.length) {
-      throw new Error('Kimi returned empty speeches');
+      throw new Error('AI returned empty speeches');
     }
 
     return targetPlayers.map((player, index) => {
       const generated = result.speeches.find((item) => item.playerId === player.id);
-      if (!generated?.content || generated.source !== 'kimi') {
-        throw new Error(`Kimi did not return a valid speech for ${player.id}`);
+      if (!generated?.content) {
+        throw new Error(`AI did not return a valid speech for ${player.id}`);
       }
+
+      const source: NonNullable<Speech['source']> = isWeapp
+        ? generated.source === 'cloud_fallback' ? 'cloud_fallback' : generated.source === 'qwen' ? 'qwen' : 'kimi'
+        : usedLocalFallback ? 'local_fallback' : 'qwen';
+
+      const sourceLabel = source === 'qwen'
+        ? 'Qwen 实时生成'
+        : source === 'kimi'
+          ? 'Kimi 实时生成'
+          : source === 'cloud_fallback'
+            ? '云端兜底'
+            : '网页本地兜底';
 
       return {
         id: `${state.day}-day-${player.id}-${index}`,
@@ -78,12 +141,12 @@ export const requestAiSpeeches = async (state: GameState, targetPlayerIds?: stri
         playerId: player.id,
         playerName: getSeatName(state, player.id),
         content: generated.content,
-        tone: `Kimi 模拟 · ${player.profile?.temperament || '新手视角'}`,
-        source: 'kimi',
+        tone: `${sourceLabel} · ${player.profile?.temperament || '新手视角'}`,
+        source,
       };
     });
   } catch (error) {
-    console.error('[AI] request Kimi speeches failed', error);
+    console.error('[AI] request speeches failed', error);
     throw error;
   }
 };

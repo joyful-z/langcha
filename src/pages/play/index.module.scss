@@ -43,7 +43,7 @@
 }
 
 .sceneBackdrop {
-  position: fixed;
+  position: absolute;
   left: 0;
   top: 0;
   width: 750rpx;
@@ -1275,12 +1275,19 @@
   position: fixed;
   left: 0;
   right: 0;
+  width: 100%;
+  max-width: 480PX;
+  margin: 0 auto;
   bottom: 0;
   padding: $spacing-md $page-padding calc($spacing-md + env(safe-area-inset-bottom));
   background:
     linear-gradient(180deg, rgba(255, 248, 207, 0.82) 0%, rgba(255, 239, 117, 0.98) 100%);
   border-top: 4rpx solid $color-border;
   box-shadow: 0 -8rpx 0 rgba(31, 19, 15, 0.08);
+}
+
+.webRaised {
+  bottom: 50PX;
 }
 
 .primaryButton,

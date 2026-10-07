@@ -36,6 +36,7 @@ const roleMarkOptions = [
 ] as const;
 
 const speechSourceLabels: Record<NonNullable<Speech['source']>, string> = {
+  qwen: 'Qwen',
   kimi: 'Kimi',
   cloud_fallback: '云兜底',
   local_fallback: '本地兜底',
@@ -218,8 +219,8 @@ const PlayPage: React.FC = () => {
         ...workingState,
         phase: 'day',
         coachTip: firstPlayer
-          ? `${getSeatLabel(workingState, firstPlayer.id)}开始听前置位，Kimi 正在顺序生成这一批发言...`
-          : 'Kimi 正在按顺序生成 AI 发言...',
+          ? `${getSeatLabel(workingState, firstPlayer.id)}开始听前置位，AI 正在顺序生成这一批发言...`
+          : 'AI 正在按顺序生成发言...',
       });
       await wait(650);
 
@@ -359,9 +360,9 @@ const PlayPage: React.FC = () => {
       const errorMessage = getErrorMessage(error);
       setGame((current) => ({
         ...current,
-        coachTip: `Kimi 未接通，已停止生成 AI 发言。原因：${errorMessage}`,
+        coachTip: `真实 AI 未接通，已停止生成发言。原因：${errorMessage}`,
       }));
-      Taro.showToast({ title: 'Kimi 未接通', icon: 'none' });
+      Taro.showToast({ title: '真实 AI 未接通', icon: 'none' });
     } finally {
       setIsAiLoading(false);
     }
@@ -433,7 +434,7 @@ const PlayPage: React.FC = () => {
       ...current,
       speeches: [...current.speeches, speech],
       userSpeechDraft: '',
-      coachTip: '你的发言已经进入记录。Kimi 正在让后置位 AI 根据你的发言继续发言。',
+      coachTip: '你的发言已经进入记录。AI 正在让后置位玩家根据你的发言继续发言。',
     }));
 
     try {
@@ -449,9 +450,9 @@ const PlayPage: React.FC = () => {
       const errorMessage = getErrorMessage(error);
       setGame((current) => ({
         ...current,
-        coachTip: `Kimi 未接通，后置位 AI 发言已停止。原因：${errorMessage}`,
+        coachTip: `真实 AI 未接通，后置位发言已停止。原因：${errorMessage}`,
       }));
-      Taro.showToast({ title: 'Kimi 未接通', icon: 'none' });
+      Taro.showToast({ title: '真实 AI 未接通', icon: 'none' });
     } finally {
       setIsAiLoading(false);
     }
@@ -860,7 +861,7 @@ const PlayPage: React.FC = () => {
                             <Text
                               className={classnames(
                                 styles.speechSource,
-                                speech.source === 'kimi' && styles.speechSourceKimi,
+                                (speech.source === 'qwen' || speech.source === 'kimi') && styles.speechSourceKimi,
                                 speech.source === 'cloud_fallback' && styles.speechSourceCloud,
                                 speech.source === 'local_fallback' && styles.speechSourceLocal,
                               )}
@@ -971,12 +972,12 @@ const PlayPage: React.FC = () => {
       )}
 
       <View className={styles.bottomSpace} />
-      <View className={styles.bottomBar}>
+      <View className={classnames(styles.bottomBar, process.env.TARO_ENV === 'h5' && styles.webRaised)}>
         {game.phase === 'night' && (
           <View className={styles.primaryButton} onClick={enterDay}>
             <Text className={styles.primaryButtonText}>
               {isAiLoading
-                ? 'Kimi 生成中...'
+                ? 'AI 生成中...'
                 : userPlayer?.role === 'seer'
                   ? currentSeerCheck ? '完成查验，进入白天' : '先完成夜晚查验'
                   : userPlayer?.role === 'werewolf'
