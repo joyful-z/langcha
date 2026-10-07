@@ -73,7 +73,26 @@ npm run start:web
 
 终端会显示本地访问地址，默认通常是 `http://localhost:10086/`。浏览器打开后即可体验首页、身份选择、对局、历史复盘和模型介绍。
 
-网页端默认使用仓库内置的本地演示发言，不需要 API Key，也不会把密钥暴露到浏览器。若要让线上网页版调用真实 Kimi，请新增服务端 API 代理并在服务端保存 `KIMI_API_KEY`，不要把密钥写进前端环境变量或源码。
+网页端会优先调用 `backend/` 中的服务端代理生成真实 Kimi 发言；服务不可用时自动使用本地演示发言，保证对局不中断。
+
+启动真实 AI 后端：
+
+```bash
+cd backend
+cp .env.example .env
+# 编辑 .env，只在服务端填写 KIMI_API_KEY
+set -a && source .env && set +a
+./venv/bin/uvicorn main:app --reload --port 8000
+```
+
+另开一个终端启动网页，并指向后端：
+
+```bash
+cd langcha
+WOLFCHA_API_BASE_URL=http://127.0.0.1:8000 npm run start:web
+```
+
+不要把 `KIMI_API_KEY` 写进前端环境变量或源码。
 
 生产构建：
 
@@ -151,4 +170,4 @@ module.exports = {
 
 ## 当前状态
 
-项目已完成可运行 Demo：微信小程序端通过云函数接入 Kimi，网页版可用本地演示发言完整体验对局流程。后续可继续优化网页版服务端 Kimi 代理、多模型角色绑定、长期记忆、复盘评分、发言质量评测和真实玩家数据闭环。
+项目已完成可运行 Demo：微信小程序端通过云函数接入 Kimi，网页版通过 FastAPI 服务端代理接入 Kimi，并在服务异常时自动使用本地演示发言。后续可继续优化多模型角色绑定、长期记忆、复盘评分、发言质量评测和真实玩家数据闭环。
